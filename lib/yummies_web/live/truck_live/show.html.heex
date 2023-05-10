@@ -1,0 +1,33 @@
+<.header>
+  Truck <%= @truck.id %>
+  <:subtitle>This is a truck record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/trucks/#{@truck}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit truck</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Lid"><%= @truck.lid %></:item>
+  <:item title="Applicant"><%= @truck.applicant %></:item>
+  <:item title="Type"><%= @truck.type %></:item>
+  <:item title="Location desc"><%= @truck.location_desc %></:item>
+  <:item title="Address"><%= @truck.address %></:item>
+  <:item title="Status"><%= @truck.status %></:item>
+  <:item title="Foods"><%= @truck.foods %></:item>
+  <:item title="Location geo"><%= @truck.location_geo %></:item>
+</.list>
+
+<.back navigate={~p"/trucks"}>Back to trucks</.back>
+
+<.modal :if={@live_action == :edit} id="truck-modal" show on_cancel={JS.patch(~p"/trucks/#{@truck}")}>
+  <.live_component
+    module={YummiesWeb.TruckLive.FormComponent}
+    id={@truck.id}
+    title={@page_title}
+    action={@live_action}
+    truck={@truck}
+    patch={~p"/trucks/#{@truck}"}
+  />
+</.modal>
