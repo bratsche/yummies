@@ -20,11 +20,6 @@ defmodule YummiesWeb.Router do
     get "/", PageController, :home
 
     live "/trucks", TruckLive.Index, :index
-    live "/trucks/new", TruckLive.Index, :new
-    live "/trucks/:id/edit", TruckLive.Index, :edit
-
-    live "/trucks/:id", TruckLive.Show, :show
-    live "/trucks/:id/show/edit", TruckLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

@@ -22,8 +22,46 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
+let Hooks = {}
+let trucks = []
+
+Hooks.MapSightingsHandler = {
+  mounted() {
+    const new_truck = ({ truck }) => {
+      var markerPosition = { lat: truck.latitude, lng: truck.longitude }
+
+      const marker = new google.maps.Marker({
+        position: markerPosition,
+        animation: google.maps.Animation.DROP
+      });
+
+      marker.setMap(window.map)
+    };
+
+    const add_truck = ({ truck }) => {
+      var pos = { lat: truck.latitude, lng: truck.longitude }
+      const marker = new google.maps.Marker({
+        position: pos,
+        animation: google.maps.Animation.DROP
+      });
+      trucks.push(marker)
+      marker.setMap(window.map)
+    }
+
+    const clear_trucks = () => {
+      for (let i = 0; i < trucks.length; i++) {
+        trucks[i].setMap(null);
+      }
+      trucks = []
+    }
+
+    this.handleEvent("add_truck", add_truck)
+    this.handleEvent("clear_trucks", clear_trucks)
+  }
+}
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}})
+let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
 
 // Show progress bar on live navigation and form submits
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})

@@ -8,7 +8,7 @@ defmodule Yummies.TrucksTest do
 
     import Yummies.TrucksFixtures
 
-    @invalid_attrs %{address: nil, applicant: nil, foods: nil, lid: nil, location_desc: nil, location_geo: nil, status: nil, type: nil}
+    @invalid_attrs %{address: nil, applicant: nil, foods: nil, lid: nil, status: nil, type: nil}
 
     test "list_trucks/0 returns all trucks" do
       truck = truck_fixture()
@@ -21,15 +21,13 @@ defmodule Yummies.TrucksTest do
     end
 
     test "create_truck/1 with valid data creates a truck" do
-      valid_attrs = %{address: "some address", applicant: "some applicant", foods: "some foods", lid: 42, location_desc: "some location_desc", location_geo: "some location_geo", status: :approved, type: :truck}
+      valid_attrs = %{address: "some address", applicant: "some applicant", foods: "some foods", lid: 42, status: :approved, type: :truck}
 
       assert {:ok, %Truck{} = truck} = Trucks.create_truck(valid_attrs)
       assert truck.address == "some address"
       assert truck.applicant == "some applicant"
       assert truck.foods == "some foods"
       assert truck.lid == 42
-      assert truck.location_desc == "some location_desc"
-      assert truck.location_geo == "some location_geo"
       assert truck.status == :approved
       assert truck.type == :truck
     end
@@ -40,15 +38,13 @@ defmodule Yummies.TrucksTest do
 
     test "update_truck/2 with valid data updates the truck" do
       truck = truck_fixture()
-      update_attrs = %{address: "some updated address", applicant: "some updated applicant", foods: "some updated foods", lid: 43, location_desc: "some updated location_desc", location_geo: "some updated location_geo", status: :expired, type: :cart}
+      update_attrs = %{address: "some updated address", applicant: "some updated applicant", foods: "some updated foods", lid: 43, status: :expired, type: :cart}
 
       assert {:ok, %Truck{} = truck} = Trucks.update_truck(truck, update_attrs)
       assert truck.address == "some updated address"
       assert truck.applicant == "some updated applicant"
       assert truck.foods == "some updated foods"
       assert truck.lid == 43
-      assert truck.location_desc == "some updated location_desc"
-      assert truck.location_geo == "some updated location_geo"
       assert truck.status == :expired
       assert truck.type == :cart
     end

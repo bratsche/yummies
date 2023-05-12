@@ -4,8 +4,10 @@ defmodule Yummies.Trucks do
   """
 
   import Ecto.Query, warn: false
-  alias Yummies.Repo
+  require Logger
 
+  alias Ecto.Multi
+  alias Yummies.Repo
   alias Yummies.Trucks.Truck
 
   @doc """
@@ -19,6 +21,25 @@ defmodule Yummies.Trucks do
   """
   def list_trucks do
     Repo.all(Truck)
+  end
+
+  def list_trucks(options) do
+    Enum.reduce(options, from(t in Truck), fn
+      {:paginate, %{page: page, per_page: per_page}}, query ->
+        from q in query,
+          offset: ^((page - 1) * per_page),
+          limit: ^per_page
+
+      {:filter, %{foods: foods}}, query ->
+        from q in query,
+          where: ilike(q.foods, ^"%#{foods}%")
+      end
+    )
+    |> Repo.all()
+  end
+
+  def count_trucks() do
+    Repo.aggregate(from(p in Truck), :count, :id)
   end
 
   @doc """
@@ -53,6 +74,51 @@ defmodule Yummies.Trucks do
     %Truck{}
     |> Truck.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def import_csv(filename) do
+    File.stream!(filename, [], 1000)
+    |> CSV.decode!()
+    |> Stream.drop(1)
+    |> Stream.map(fn [loc_id, applicant, facility, _cnn, loc_desc, address, _blocklot, _block, _lot, _permit, status, foods, _x, _y, lat, lng, _sched, _dayshours, _noisent, _approved, _received, _prior_permit, _exp_date, _location, _fpdistricts, _police_districts, _supervisor_districts, _zipcodes, _neighborhoods] ->
+      type =
+        case facility do
+          "Truck" -> :truck
+          "Push Cart" -> :cart
+          _ -> ""
+        end
+
+      attrs =
+        %{
+          address: address,
+          applicant: applicant,
+          foods: foods,
+          lid: loc_id,
+          type: type,
+          status: String.downcase(status)
+        }
+
+      Multi.new()
+      |> Multi.insert(:truck, Truck.changeset(%Truck{}, attrs))
+      |> Multi.insert(
+        :location,
+        fn %{truck: truck} ->
+          {:ok, geom} = Geo.WKT.decode("SRID=4326;POINT(#{lat} #{lng})")
+          loc_attrs = %{
+            desc: loc_desc,
+            geom: geom
+          }
+          Ecto.build_assoc(truck, :location, loc_attrs)
+        end
+      )
+    end)
+    |> Stream.map(fn
+      %Ecto.Multi{operations: [location: _, truck: {:changeset, %Ecto.Changeset{valid?: true}, []}]} = multi ->
+        Repo.transaction(multi)
+      %Ecto.Multi{operations: [location: _, truck: {:changeset, %Ecto.Changeset{valid?: false}, []}]} ->
+        Logger.warn("Failed to import food truck")
+    end)
+    |> Stream.run()
   end
 
   @doc """

@@ -1,40 +1,31 @@
 <.header>
   Listing Trucks
-  <:actions>
-    <.link patch={~p"/trucks/new"}>
-      <.button>New Truck</.button>
-    </.link>
-  </:actions>
 </.header>
 
-<.table
-  id="trucks"
-  rows={@streams.trucks}
-  row_click={fn {_id, truck} -> JS.navigate(~p"/trucks/#{truck}") end}
->
-  <:col :let={{_id, truck}} label="Lid"><%= truck.lid %></:col>
-  <:col :let={{_id, truck}} label="Applicant"><%= truck.applicant %></:col>
-  <:col :let={{_id, truck}} label="Type"><%= truck.type %></:col>
-  <:col :let={{_id, truck}} label="Location desc"><%= truck.location_desc %></:col>
-  <:col :let={{_id, truck}} label="Address"><%= truck.address %></:col>
-  <:col :let={{_id, truck}} label="Status"><%= truck.status %></:col>
-  <:col :let={{_id, truck}} label="Foods"><%= truck.foods %></:col>
-  <:col :let={{_id, truck}} label="Location geo"><%= truck.location_geo %></:col>
-  <:action :let={{_id, truck}}>
-    <div class="sr-only">
-      <.link navigate={~p"/trucks/#{truck}"}>Show</.link>
+<section id="map-section" class="h-96" phx-update="ignore" phx-hook="MapSightingsHandler">
+  <div id="map" class="min-h-full">
+  </div>
+</section>
+
+<div>
+  <.form for={%{}} as={:filter} phx-change={:filter_changed}>
+    <.input label="Filter" name="filter" value={@filter} />
+  </.form>
+</div>
+
+<ul role="list" class="divide-y divide-gray-200">
+  <li :for={truck <- @trucks} class="px-4 py-2">
+    <div>
+      <%= truck.applicant %> - <%= truck.address %>
     </div>
-    <.link patch={~p"/trucks/#{truck}/edit"}>Edit</.link>
-  </:action>
-  <:action :let={{id, truck}}>
-    <.link
-      phx-click={JS.push("delete", value: %{id: truck.id}) |> hide("##{id}")}
-      data-confirm="Are you sure?"
-    >
-      Delete
-    </.link>
-  </:action>
-</.table>
+
+    <div class="text-xs text-gray-400">
+      <%= truck.foods %>
+    </div>
+  </li>
+</ul>
+
+<.pagination_nav page={@options.page} n_pages={@n_pages} />
 
 <.modal :if={@live_action in [:new, :edit]} id="truck-modal" show on_cancel={JS.patch(~p"/trucks")}>
   <.live_component
@@ -46,3 +37,26 @@
     patch={~p"/trucks"}
   />
 </.modal>
+
+<script
+  src={"https://maps.googleapis.com/maps/api/js?key=#{@api_key}&callback=initMap&libraries=&v=weekly"}
+  defer
+></script>
+
+<script>
+  (function(exports) {
+    "use strict";
+
+    function initMap() {
+      exports.map = new google.maps.Map(document.getElementById("map"), {
+        center: {
+          lat: 37.7749,
+          lng: -122.4194
+        },
+        zoom: 12
+      });
+    }
+
+    exports.initMap = initMap;
+  })((this.window = this.window || {}));
+</script>

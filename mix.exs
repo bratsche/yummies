@@ -50,7 +50,8 @@ defmodule Yummies.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:geo_postgis, "~> 3.4.2"}
+      {:geo_postgis, "~> 3.4.2"},
+      {:csv, "~> 3.0"}
     ]
   end
 

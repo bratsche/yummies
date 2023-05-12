@@ -15,12 +15,14 @@ defmodule Yummies.TrucksFixtures do
         applicant: "some applicant",
         foods: "some foods",
         lid: 42,
-        location_desc: "some location_desc",
-        location_geo: "some location_geo",
         status: :approved,
         type: :truck
       })
       |> Yummies.Trucks.create_truck()
+
+    {:ok, geom} = Geo.WKT.decode("SRID=4326;POINT(37.755030726766726 -122.38453073422282)")
+    Ecto.build_assoc(truck, :location, %{desc: "some place", geom: geom})
+    |> Yummies.Repo.insert!()
 
     truck
   end

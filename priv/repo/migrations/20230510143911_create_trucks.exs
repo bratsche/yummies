@@ -4,13 +4,11 @@ defmodule Yummies.Repo.Migrations.CreateTrucks do
   def change do
     create table(:trucks) do
       add :lid, :integer
-      add :applicant, :string
-      add :type, :string
-      add :location_desc, :string
-      add :address, :string
-      add :status, :string
-      add :foods, :string
-      add :location_geo, :geometry
+      add :applicant, :string, null: false
+      add :type, :string, null: false
+      add :address, :string, null: false
+      add :status, :string, null: false
+      add :foods, :text, null: false
 
       timestamps()
     end
