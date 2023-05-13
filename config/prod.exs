@@ -1,5 +1,8 @@
 import Config
 
+config :yummies, Yummies.Repo,
+  types: Yummies.PostgresTypes
+
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
 # when generating URLs.
