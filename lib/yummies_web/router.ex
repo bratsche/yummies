@@ -17,9 +17,7 @@ defmodule YummiesWeb.Router do
   scope "/", YummiesWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-
-    live "/trucks", TruckLive.Index, :index
+    live "/", TruckLive.Index, :index
   end
 
   # Other scopes may use custom stacks.

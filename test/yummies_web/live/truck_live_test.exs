@@ -13,7 +13,7 @@ defmodule YummiesWeb.TruckLiveTest do
     setup [:create_truck]
 
     test "lists all trucks", %{conn: conn, truck: truck} do
-      {:ok, _index_live, html} = live(conn, ~p"/trucks")
+      {:ok, _index_live, html} = live(conn, ~p"/")
 
       assert html =~ "Listing Trucks"
       assert html =~ truck.address
